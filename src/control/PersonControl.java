@@ -3,17 +3,13 @@ package control;
 import bean.Person;
 import bean.Result;
 import bean.Score;
+import org.apache.commons.logging.Log;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
-import org.springframework.web.multipart.MultipartResolver;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
-import rx.Observable;
-import rx.functions.Action0;
-import rx.schedulers.Schedulers;
-
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.UnsupportedEncodingException;
@@ -100,19 +96,70 @@ public class PersonControl {
         return result;
     }
 
+//    @ResponseBody
+//    @RequestMapping(value = "/uploadFile", method = RequestMethod.POST)
+//    public Result<String> uploadFile(@RequestParam(value = "upfile", required = true) MultipartFile file, HttpServletRequest request, ModelMap model) throws UnsupportedEncodingException {
+//
+//        Result<String> result = new Result<>();
+//
+//        String path = request.getSession().getServletContext().getInitParameter("file-upload");
+//        String fileName = file.getOriginalFilename();
+//        String name = request.getParameter("name");
+//        System.out.println("uploadFile");
+//        File targetFile = new File(path, fileName);
+//        if (!targetFile.exists()) {
+//            targetFile.mkdirs();
+//        }
+//
+//        //保存
+//        try {
+//            file.transferTo(targetFile);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//
+//
+//        result.setResult(name + "上传图片成功");
+//        //    result.setResult("上传图片成功");
+//        result.setRetCode("0000000");
+//        result.setRetInfo("成功");
+//        return result;
+//    }
+
     @ResponseBody
     @RequestMapping(value = "/uploadFile", method = RequestMethod.POST)
-    public Result<String> uploadFile(@RequestParam(value = "upfile", required = true) MultipartFile file, HttpServletRequest request, ModelMap model) throws UnsupportedEncodingException {
+    public Result<String> uploadFile(HttpServletRequest request) throws UnsupportedEncodingException {
 
         Result<String> result = new Result<>();
 
         String path = request.getSession().getServletContext().getInitParameter("file-upload");
-        String fileName = file.getOriginalFilename();
         String name = request.getParameter("name");
 
-        Schedulers.io()
-                .createWorker()
-                .schedule(() -> saveFile(path, fileName, file));
+        CommonsMultipartResolver commonsMultipartResolver = new  CommonsMultipartResolver(request.getSession().getServletContext());
+        commonsMultipartResolver.setDefaultEncoding("utf-8");
+        commonsMultipartResolver.getFileUpload().getFileItemFactory();
+        MultipartHttpServletRequest multipartRequest = commonsMultipartResolver.resolveMultipart(request);
+        Iterator<String> names = multipartRequest.getFileNames();
+        System.out.println("uploadAnyFiles");
+        while (names.hasNext()) {
+
+            String nameFile = names.next();
+            System.out.println("name:" +  nameFile);
+            MultipartFile file = multipartRequest.getFile(name);
+
+            File targetFile = new File(path, nameFile);
+            if (!targetFile.exists()) {
+                targetFile.mkdirs();
+            }
+
+            //保存
+            try {
+                file.transferTo(targetFile);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
 
 
         result.setResult(name + "上传图片成功");
@@ -136,13 +183,24 @@ public class PersonControl {
         commonsMultipartResolver.getFileUpload().getFileItemFactory();
         MultipartHttpServletRequest multipartRequest = commonsMultipartResolver.resolveMultipart(request);
         Iterator<String> names = multipartRequest.getFileNames();
-
+        System.out.println("uploadAnyFiles");
         while (names.hasNext()) {
+
             String nameFile = names.next();
+            System.out.println("name:" +  nameFile);
             MultipartFile file = multipartRequest.getFile(name);
-            Schedulers.io()
-                    .createWorker()
-                    .schedule(() -> saveFile(path, nameFile, file));
+
+            File targetFile = new File(path, nameFile);
+            if (!targetFile.exists()) {
+                targetFile.mkdirs();
+            }
+
+            //保存
+            try {
+                file.transferTo(targetFile);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
 
