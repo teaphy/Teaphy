@@ -11,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
@@ -96,36 +97,6 @@ public class PersonControl {
         return result;
     }
 
-//    @ResponseBody
-//    @RequestMapping(value = "/uploadFile", method = RequestMethod.POST)
-//    public Result<String> uploadFile(@RequestParam(value = "upfile", required = true) MultipartFile file, HttpServletRequest request, ModelMap model) throws UnsupportedEncodingException {
-//
-//        Result<String> result = new Result<>();
-//
-//        String path = request.getSession().getServletContext().getInitParameter("file-upload");
-//        String fileName = file.getOriginalFilename();
-//        String name = request.getParameter("name");
-//        System.out.println("uploadFile");
-//        File targetFile = new File(path, fileName);
-//        if (!targetFile.exists()) {
-//            targetFile.mkdirs();
-//        }
-//
-//        //保存
-//        try {
-//            file.transferTo(targetFile);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//
-//
-//        result.setResult(name + "上传图片成功");
-//        //    result.setResult("上传图片成功");
-//        result.setRetCode("0000000");
-//        result.setRetInfo("成功");
-//        return result;
-//    }
-
     @ResponseBody
     @RequestMapping(value = "/uploadFile", method = RequestMethod.POST)
     public Result<String> uploadFile(HttpServletRequest request) throws UnsupportedEncodingException {
@@ -133,21 +104,25 @@ public class PersonControl {
         Result<String> result = new Result<>();
 
         String path = request.getSession().getServletContext().getInitParameter("file-upload");
-        String name = request.getParameter("name");
+
 
         CommonsMultipartResolver commonsMultipartResolver = new  CommonsMultipartResolver(request.getSession().getServletContext());
         commonsMultipartResolver.setDefaultEncoding("utf-8");
         commonsMultipartResolver.getFileUpload().getFileItemFactory();
-        MultipartHttpServletRequest multipartRequest = commonsMultipartResolver.resolveMultipart(request);
+//        MultipartHttpServletRequest multipartRequest = commonsMultipartResolver.resolveMultipart(request);
+        MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest) request;
+        String name = multipartRequest.getParameter("name");
         Iterator<String> names = multipartRequest.getFileNames();
+
         System.out.println("uploadAnyFiles");
+
         while (names.hasNext()) {
 
             String nameFile = names.next();
             System.out.println("name:" +  nameFile);
-            MultipartFile file = multipartRequest.getFile(name);
+            MultipartFile file = multipartRequest.getFile(nameFile);
 
-            File targetFile = new File(path, nameFile);
+            File targetFile = new File(path, file.getOriginalFilename());
             if (!targetFile.exists()) {
                 targetFile.mkdirs();
             }
@@ -167,67 +142,6 @@ public class PersonControl {
         result.setRetCode("0000000");
         result.setRetInfo("成功");
         return result;
-    }
-
-    @ResponseBody
-    @RequestMapping(value = "/uploadAnyFiles", method = RequestMethod.POST)
-    public Result<String> uploadAnyFiles(HttpServletRequest request,
-                                     ModelMap model) throws UnsupportedEncodingException {
-        Result<String> result = new Result<>();
-
-        String path = request.getSession().getServletContext().getInitParameter("file-upload");
-        String name = request.getParameter("name");
-
-        CommonsMultipartResolver commonsMultipartResolver = new  CommonsMultipartResolver(request.getSession().getServletContext());
-        commonsMultipartResolver.setDefaultEncoding("utf-8");
-        commonsMultipartResolver.getFileUpload().getFileItemFactory();
-        MultipartHttpServletRequest multipartRequest = commonsMultipartResolver.resolveMultipart(request);
-        Iterator<String> names = multipartRequest.getFileNames();
-        System.out.println("uploadAnyFiles");
-        while (names.hasNext()) {
-
-            String nameFile = names.next();
-            System.out.println("name:" +  nameFile);
-            MultipartFile file = multipartRequest.getFile(name);
-
-            File targetFile = new File(path, nameFile);
-            if (!targetFile.exists()) {
-                targetFile.mkdirs();
-            }
-
-            //保存
-            try {
-                file.transferTo(targetFile);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-
-
-        result.setResult(name + "上传图片成功");
-        //    result.setResult("上传图片成功");
-        result.setRetCode("0000000");
-        result.setRetInfo("成功");
-        return result;
-    }
-
-    /**
-     * 保存文件
-     * @param path 文件路径
-     * @param fileName 文件名称
-     */
-    private void saveFile(String path, String fileName, MultipartFile file) {
-        File targetFile = new File(path, fileName);
-        if (!targetFile.exists()) {
-            targetFile.mkdirs();
-        }
-
-        //保存
-        try {
-            file.transferTo(targetFile);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
 }

@@ -32,5 +32,7 @@
     <orderEntry type="library" name="servlet-api" level="project" />
     <orderEntry type="library" name="Spring-4.2.6.RELEASE" level="project" />
     <orderEntry type="library" name="Spring MVC-4.2.6.RELEASE" level="project" />
+    <orderEntry type="library" name="jstl-1.1.2 " level="project" />
+    <orderEntry type="library" name="standard-1.1.2" level="project" />
   </component>
 </module>
